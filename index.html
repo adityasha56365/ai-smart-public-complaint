@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CitiFix - Auth</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <div class="auth-logo">⚡</div>
+                <h1>CitiFix</h1>
+                <p>AI-Powered Civic Issue Resolution</p>
+            </div>
+
+            <div id="errorMsg" class="error-message" role="alert"></div>
+            <div id="successMsg" class="success-message" role="status"></div>
+
+            <div class="auth-tabs" role="tablist" aria-label="Authentication Tabs">
+                <button id="tabLoginBtn" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button id="tabRegisterBtn" class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <div id="loginForm" aria-hidden="false">
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Email or Phone <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="loginEmail" class="form-input" placeholder="Enter email or phone number" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password <span style="color: var(--danger);">*</span></label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" autocomplete="new-password">
+                </div>
+
+                <div class="checkbox-group" style="margin-bottom:12px;">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me</label>
+                </div>
+
+                <button class="btn btn-primary" onclick="handleLogin()" style="margin-top: 8px;">🔓 Login</button>
+
+                <div class="form-group" style="margin-top: 12px;">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="useOtp" onchange="toggleOtpLogin()">
+                        <span>Login with OTP instead?</span>
+                    </label>
+                </div>
+
+                <div id="otpLoginSection" class="otp-section" aria-hidden="true">
+                    <p style="font-size: 12px; margin-bottom: 8px;">📱 Enter OTP sent to your phone</p>
+                    <div class="otp-inputs" id="otpInputs">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
+                    </div>
+                    <button class="btn btn-primary" onclick="verifyOtp()">✓ Verify OTP</button>
+                </div>
+
+                <div class="auth-footer">
+                    <a onclick="switchAuthTab('register')">Don't have account? Register</a><br><br>
+                    <a href="#">Forgot password?</a>
+                </div>
+            </div>
+
+            <div id="registerForm" style="display: none;" aria-hidden="true">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="firstName">First Name <span style="color: var(--danger);">*</span></label>
+                        <input type="text" id="firstName" class="form-input" placeholder="First name" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="lastName">Last Name <span style="color: var(--danger);">*</span></label>
+                        <input type="text" id="lastName" class="form-input" placeholder="Last name" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regEmail">Email <span style="color: var(--danger);">*</span></label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPhone">Phone <span style="color: var(--danger);">*</span></label>
+                    <input type="tel" id="regPhone" class="form-input" placeholder="10-digit phone number" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">Password <span style="color: var(--danger);">*</span></label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="Min 8 characters" onkeyup="checkPasswordStrength(this)" autocomplete="new-password">
+                    <div class="password-strength">
+                        <div id="strengthBar" class="password-strength-bar"></div>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Password must be 8+ characters</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regConfirmPassword">Confirm Password <span style="color: var(--danger);">*</span></label>
+                    <input type="password" id="regConfirmPassword" class="form-input" placeholder="Confirm password" autocomplete="new-password">
+                </div>
+
+                <div class="checkbox-group" style="margin-bottom: 16px;">
+                    <input type="checkbox" id="agreeTerms" checked>
+                    <label for="agreeTerms">I agree to Terms & Conditions</label>
+                </div>
+
+                <button class="btn btn-primary" onclick="handleRegister()">✓ Create Account</button>
+
+                <div class="auth-footer">
+                    <a onclick="switchAuthTab('login')">Already have account? Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

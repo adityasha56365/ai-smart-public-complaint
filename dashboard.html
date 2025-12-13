@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CitiFix - Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <span>CitiFix</span>
+      </div>
+
+      <nav class="nav-section">
+        <div class="nav-label">Main</div>
+        <a href="#" class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</a>
+        <a href="#" class="nav-item" data-tab="new-complaint" onclick="switchTab('new-complaint')">➕ New Complaint</a>
+        <a href="#" class="nav-item" data-tab="my-complaints" onclick="switchTab('my-complaints')">📋 My Complaints</a>
+      </nav>
+
+      <nav class="nav-section">
+        <div class="nav-label">Analytics</div>
+        <a href="#" class="nav-item" data-tab="analytics" onclick="switchTab('analytics')">📈 Analytics</a>
+        <a href="#" class="nav-item" data-tab="ai-insights" onclick="switchTab('ai-insights')">🤖 AI Insights</a>
+      </nav>
+
+      <nav class="nav-section">
+        <div class="nav-label">Support</div>
+        <a href="#" class="nav-item" data-tab="help" onclick="switchTab('help')">❓ Help Center</a>
+        <a href="#" class="nav-item" data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div id="dashboard" class="tab-content" data-tab-name="dashboard">
+        <div class="header">
+          <div class="header-title">
+            <h1>Welcome Back! 👋</h1>
+            <p>Track all your civic issues with AI-powered assistance</p>
+          </div>
+          <button id="newComplaintBtnTop" class="btn btn-primary" onclick="switchTab('new-complaint')">➕ New Complaint</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">📤 Total Complaints</div>
+            <div class="stat-value">24</div>
+            <div class="stat-change">↑ 12% from last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">⏳ Pending Issues</div>
+            <div class="stat-value">3</div>
+            <div class="stat-change">↓ 2 resolved this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">✅ Resolved</div>
+            <div class="stat-value">19</div>
+            <div class="stat-change">79% resolution rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">⚡ Avg Resolution</div>
+            <div class="stat-value">4.2d</div>
+            <div class="stat-change">↓ 1.8 days faster</div>
+          </div>
+        </div>
+
+        <div class="ai-analysis">
+          <div style="font-weight:700; margin-bottom:16px; color:var(--primary-light);">🤖 AI-Powered Features</div>
+          <div class="ai-feature">📍 Smart Geolocation: Auto-detects complaint location</div>
+          <div class="ai-feature">🔍 Category Intelligence: AI suggests category from description</div>
+          <div class="ai-feature">📸 Image Analysis: Upload photos for auto-classification</div>
+          <div class="ai-feature">🎯 Priority Scoring: AI ranks urgency for fast-track</div>
+          <div class="ai-feature">💬 Multilingual Support: Write in any language</div>
+          <div class="ai-feature">🔔 Smart Notifications: Real-time status updates</div>
+        </div>
+
+        <div class="complaints-section">
+          <div class="section-header">
+            <div class="section-title">Recent Complaints</div>
+            <div class="filters">
+              <button class="filter-btn active" data-status="all">All</button>
+              <button class="filter-btn" data-status="open">Open</button>
+              <button class="filter-btn" data-status="in-progress">In Progress</button>
+              <button class="filter-btn" data-status="resolved">Resolved</button>
+            </div>
+          </div>
+
+          <div id="recentComplaintsList"></div>
+        </div>
+      </div>
+
+      <div id="new-complaint" class="tab-content" style="display:none;" data-tab-name="new-complaint">
+        <div class="header">
+          <div class="header-title">
+            <h1>File New Complaint</h1>
+            <p>Help improve your city - Report issues that matter</p>
+          </div>
+        </div>
+
+        <div class="form-container">
+          <div class="form-title">📋 Complaint Details</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category <span class="required">*</span></label>
+              <select id="category" class="form-select"> 
+                <option value="">Select Category</option>
+                <option value="Road Damage">Road Damage</option>
+                <option value="Water Supply">Water Supply</option>
+                <option value="Streetlight">Streetlight</option>
+                <option value="Garbage Disposal">Garbage Disposal</option>
+                <option value="Noise Pollution">Noise Pollution</option>
+                <option value="Drainage">Drainage</option>
+              </select>
+              <div class="ai-suggestion">🤖 AI Tip: Select closest category - we'll auto-refine based on description</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority <span class="required">*</span></label>
+              <select id="priority" class="form-select">
+                <option value="">Select Priority</option>
+                <option value="Low">Low - Can wait</option>
+                <option value="Medium">Medium - Needs attention</option>
+                <option value="High">High - Urgent</option>
+                <option value="Critical">Critical - Safety Risk</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Location <span class="required">*</span></label>
+              <input id="location" type="text" class="form-input" placeholder="Enter street/area..."> 
+              <div class="ai-suggestion">📍 Detected: Sector 5, Market Area</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Affected People <span class="required">*</span></label>
+              <input id="affected" type="number" class="form-input" value="1" min="1">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Title <span class="required">*</span></label>
+              <input id="title" type="text" class="form-input" placeholder="Brief title...">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Description <span class="required">*</span></label>
+              <textarea id="description" class="form-textarea" placeholder="Describe issue in detail..."></textarea>
+              <div class="ai-suggestion">📝 More details = faster resolution</div>
+            </div>
+          </div>
+
+          <div class="form-row" style="gap:12px;">
+            <button id="submitComplaintBtn" class="btn btn-primary" onclick="handleComplaintSubmit()">✅ Submit Complaint</button>
+            <button id="cancelComplaintBtn" class="btn btn-secondary" onclick="switchTab('dashboard')">❌ Cancel</button>
+          </div>
+        </div>
+
+        <div style="margin-top:40px;">
+          <h2 style="font-size:18px; margin-bottom:24px;">Why Choose CitiFix?</h2>
+          <div class="feature-list">
+            <div class="feature-card"><div class="feature-icon">🚀</div><div class="feature-name">Lightning Fast</div><div class="feature-desc">AI prioritization in seconds</div></div>
+            <div class="feature-card"><div class="feature-icon">🌍</div><div class="feature-name">Multilingual</div><div class="feature-desc">Any language, auto-translated</div></div>
+            <div class="feature-card"><div class="feature-icon">🔐</div><div class="feature-name">100% Private</div><div class="feature-desc">Encrypted & secure</div></div>
+            <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-name">Real-time Tracking</div><div class="feature-desc">Live resolution updates</div></div>
+            <div class="feature-card"><div class="feature-icon">🤝</div><div class="feature-name">Community Voting</div><div class="feature-desc">Upvote similar issues</div></div>
+            <div class="feature-card"><div class="feature-icon">📞</div><div class="feature-name">24/7 Support</div><div class="feature-desc">AI + human support</div></div>
+          </div>
+        </div>
+      </div>
+
+        <div id="my-complaints" class="tab-content" style="display:none;" data-tab-name="my-complaints">
+        <div class="header">
+          <div class="header-title">
+            <h1>My Complaints</h1>
+            <p>Track all your submitted complaints</p>
+          </div>
+        </div>
+        <div class="complaints-section">
+          <div id="myComplaintsList" style="min-height:120px;">
+            <p style="text-align:center; color:var(--text-secondary); padding:40px 20px;">Loading your complaints…</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="analytics" class="tab-content" style="display:none;" data-tab-name="analytics">
+        <div class="header"><h1>Analytics Dashboard</h1></div>
+        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
+          <p>📊 Analytics coming soon</p>
+        </div>
+      </div>
+
+      <div id="ai-insights" class="tab-content" style="display:none;" data-tab-name="ai-insights">
+        <div class="header"><h1>AI Insights</h1></div>
+        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
+          <p>🤖 AI recommendations coming soon</p>
+        </div>
+      </div>
+
+      <div id="help" class="tab-content" style="display:none;" data-tab-name="help">
+        <div class="header"><h1>Help Center</h1></div>
+        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
+          <p>❓ FAQ and support articles</p>
+        </div>
+      </div>
+
+      <div id="settings" class="tab-content" style="display:none;" data-tab-name="settings">
+        <div class="header"><h1>Settings</h1></div>
+        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
+          <p>⚙️ Account settings</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-init.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

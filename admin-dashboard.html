@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CitiFix - Admin Dashboard</title>
+
+    <!-- Main Dashboard CSS -->
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <span>CitiFix Admin</span>
+        </div>
+
+        <nav class="nav-section">
+            <div class="nav-label">Admin Panel</div>
+
+            <a href="#" class="nav-item active"
+               data-tab="overview"
+               onclick="switchAdminTab('overview', this)">
+                ✨ Overview
+            </a>
+
+            <a href="#" class="nav-item"
+               data-tab="all-complaints"
+               onclick="switchAdminTab('all-complaints', this)">
+                📋 All Complaints
+            </a>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-label">Settings</div>
+
+            <a href="#" class="nav-item"
+               data-tab="reports"
+               onclick="switchAdminTab('reports', this)">
+                📈 Reports
+            </a>
+
+            <a href="#" class="nav-item"
+               data-tab="settings"
+               onclick="switchAdminTab('settings', this)">
+                ⚙️ Settings
+            </a>
+
+            <a href="#" class="nav-item logout-btn"
+               onclick="adminLogout()">
+                🔒 Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main">
+
+        <!-- ========== OVERVIEW TAB ========== -->
+        <div id="overview" class="tab-content">
+
+            <div class="header">
+                <div class="header-title">
+                    <h1>Admin Overview 👋</h1>
+                    <p>Real-time system health and complaint statistics.</p>
+                </div>
+            </div>
+
+            <!-- 🔥 REQUIRED FOR admin.js -->
+            <div id="adminStatsGrid" class="stats-grid">
+                <p style="text-align:center; padding:40px;">
+                    Loading statistics...
+                </p>
+            </div>
+
+            <div class="complaints-section" style="margin-top:40px;">
+                <div class="section-title">System Activity Log</div>
+
+                <div id="activityLog">
+                    <p style="color:var(--text-secondary); padding:20px;">
+                        Loading recent activities...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ALL COMPLAINTS TAB ========== -->
+        <div id="all-complaints" class="tab-content" style="display:none;">
+
+            <div class="header">
+                <div class="header-title">
+                    <h1>All User Complaints</h1>
+                    <p>Manage and update status for all reported issues.</p>
+                </div>
+            </div>
+
+            <div class="complaints-section">
+
+                <div class="section-header">
+                    <div class="section-title">Filter Complaints</div>
+
+                    <div class="filters">
+                        <button class="filter-btn active"
+                                onclick="filterAdminComplaints('all', this)">
+                            All
+                        </button>
+
+                        <button class="filter-btn"
+                                onclick="filterAdminComplaints('pending', this)">
+                            Pending
+                        </button>
+
+                        <button class="filter-btn"
+                                onclick="filterAdminComplaints('in-progress', this)">
+                            In Progress
+                        </button>
+
+                        <button class="filter-btn"
+                                onclick="filterAdminComplaints('resolved', this)">
+                            Resolved
+                        </button>
+
+                        <button class="filter-btn"
+                                onclick="filterAdminComplaints('rejected', this)">
+                            Rejected
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 🔥 REQUIRED FOR admin.js -->
+                <div id="allComplaintsList">
+                    <p style="text-align:center; color:var(--text-secondary); padding:40px;">
+                        Loading all user complaints…
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========== REPORTS TAB ========== -->
+        <div id="reports" class="tab-content" style="display:none;">
+            <h1>Reports</h1>
+            <p style="padding:20px;">Detailed report generation coming soon.</p>
+        </div>
+
+        <!-- ========== SETTINGS TAB ========== -->
+        <div id="settings" class="tab-content" style="display:none;">
+            <h1>Settings</h1>
+            <p style="padding:20px;">Admin configuration settings.</p>
+        </div>
+
+    </main>
+</div>
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<!-- Firebase Init -->
+<script src="firebase-init.js"></script>
+
+<!-- Admin Logic -->
+<script src="admin.js"></script>
+
+</body>
+</html>
