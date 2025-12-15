@@ -18,6 +18,7 @@ if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'functi
     // Expose commonly used services
     window.firebaseAuth = firebase.auth();
     window.firebaseDB = firebase.firestore();
+    window.firebaseStorage = firebase.storage();
     console.log('Firebase initialized');
   } catch (e) {
     console.warn('Firebase init error:', e);

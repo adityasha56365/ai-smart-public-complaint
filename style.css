@@ -306,6 +306,60 @@ body {
     text-decoration: underline;
 }
 
+/* Google Sign-in Button Styles */
+.btn-google {
+    background: white;
+    color: #4285F4;
+    border: 1px solid #dadce0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-google:hover {
+    background: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.btn-google svg {
+    flex-shrink: 0;
+}
+
+/* Email Verification Section */
+#emailVerificationSection {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Divider Styles */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
 .error-message {
     background: rgba(214, 40, 40, 0.2);
     border: 1px solid rgba(214, 40, 40, 0.4);
@@ -344,4 +398,19 @@ body {
     .form-row {
         grid-template-columns: 1fr;
     }
+
+    /* Compact auth header and controls for small phones */
+    .auth-header h1 { font-size: 20px; }
+    .auth-header p { font-size: 12px; }
+    .auth-logo { width: 48px; height:48px; font-size:24px; margin-bottom:12px; }
+    .auth-tab { padding: 8px; font-size:13px; }
+    .btn { padding:10px; font-size:13px; }
+}
+
+@media (max-width: 420px) {
+    .auth-box { padding: 20px; border-radius:14px; }
+    .auth-header { margin-bottom:18px; }
+    .auth-header h1 { font-size:18px; }
+    .auth-header p { font-size:11px; }
+    .auth-tab { font-size:12px; padding:8px 6px; }
 }

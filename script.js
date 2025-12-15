@@ -19,19 +19,6 @@ function switchAuthTab(tab) {
     clearMessages();
 }
 
-function toggleOtpLogin() {
-    const section = document.getElementById('otpLoginSection');
-    const shown = document.getElementById('useOtp').checked;
-    section.classList.toggle('active', shown);
-    section.setAttribute('aria-hidden', !shown);
-}
-
-function moveToNext(current) {
-    if (current.value.length === 1) {
-        const next = current.nextElementSibling;
-        if (next && next.classList.contains('otp-input')) next.focus();
-    }
-}
 
 function showError(msg) {
     const el = document.getElementById('errorMsg');
@@ -144,12 +131,22 @@ function handleRegister() {
         return;
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+
     showSuccess('Creating account...');
 
     firebaseAuth
         .createUserWithEmailAndPassword(email, password)
         .then(async (cred) => {
             const uid = cred.user.uid;
+
+            // Send email verification (optional - Firebase's built-in verification)
+            await cred.user.sendEmailVerification();
 
             // ✅ DEFAULT ROLE = USER
             await firebaseDB.collection('users').doc(uid).set({
@@ -158,7 +155,8 @@ function handleRegister() {
                 lastName,
                 email,
                 phone,
-                role: 'user', // 🔥 IMPORTANT
+                role: 'user',
+                emailVerified: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
 
@@ -191,6 +189,99 @@ function checkPasswordStrength(input) {
     if (input.value.length < 12) bar.classList.add('weak');
     else if (input.value.length < 16) bar.classList.add('medium');
     else bar.classList.add('strong');
+}
+
+// ================== GOOGLE LOGIN ==================
+
+function handleGoogleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    showSuccess('Signing in with Google...');
+
+    firebaseAuth
+        .signInWithPopup(provider)
+        .then(async (result) => {
+            const user = result.user;
+            const isNewUser = result.additionalUserInfo.isNewUser;
+
+            // Check if user exists in Firestore
+            const userDoc = await firebaseDB.collection('users').doc(user.uid).get();
+
+            if (!userDoc.exists) {
+                // Create user profile for new Google users
+                const displayName = user.displayName || '';
+                const nameParts = displayName.split(' ');
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+
+                await firebaseDB.collection('users').doc(user.uid).set({
+                    uid: user.uid,
+                    firstName,
+                    lastName,
+                    email: user.email,
+                    phone: user.phoneNumber || '',
+                    role: 'user',
+                    emailVerified: user.emailVerified,
+                    photoURL: user.photoURL,
+                    provider: 'google',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+            } else {
+                // Update existing user if needed
+                const userData = userDoc.data();
+                if (!userData.provider || userData.provider !== 'google') {
+                    await firebaseDB.collection('users').doc(user.uid).update({
+                        emailVerified: user.emailVerified,
+                        photoURL: user.photoURL,
+                        provider: 'google',
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    });
+                }
+            }
+
+            // Get updated user data
+            const updatedDoc = await firebaseDB.collection('users').doc(user.uid).get();
+            const userData = updatedDoc.data();
+            const role = userData.role || 'user';
+            const isAdmin = role === 'admin';
+
+            // Store session
+            localStorage.setItem(
+                'user',
+                JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    role: role,
+                    isAdmin: isAdmin,
+                    loggedIn: true,
+                })
+            );
+
+            showSuccess('Login successful! Redirecting...');
+
+            setTimeout(() => {
+                if (isAdmin) {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            }, 800);
+        })
+        .catch((err) => {
+            console.error('Google login error:', err);
+            if (err.code === 'auth/popup-closed-by-user') {
+                showError('Sign-in popup was closed. Please try again.');
+            } else {
+                showError(err.message || 'Google login failed');
+            }
+        });
+}
+
+function handleGoogleRegister() {
+    // Google registration is the same as login (creates account if new)
+    handleGoogleLogin();
 }
 
 // ================== SESSION MESSAGE ==================

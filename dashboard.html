@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CitiFix - Dashboard</title>
+  <title>Smart complaint app - Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
+  <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle menu" onclick="toggleSidebar()">☰</button>
   <div class="container">
     <aside class="sidebar">
+      <button class="sidebar-close-btn" aria-label="Close menu" onclick="toggleSidebar()">✕</button>
       <div class="logo">
         <div class="logo-icon">⚡</div>
-        <span>CitiFix</span>
+        <span>Smart complaint </span>
       </div>
 
       <nav class="nav-section">
@@ -30,7 +32,7 @@
       <nav class="nav-section">
         <div class="nav-label">Support</div>
         <a href="#" class="nav-item" data-tab="help" onclick="switchTab('help')">❓ Help Center</a>
-        <a href="#" class="nav-item" data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</a>
+        <a href="#" class="nav-item" data-tab="settings" onclick="switchTab('settings')">⚙ Settings</a>
       </nav>
     </aside>
 
@@ -38,7 +40,7 @@
       <div id="dashboard" class="tab-content" data-tab-name="dashboard">
         <div class="header">
           <div class="header-title">
-            <h1>Welcome Back! 👋</h1>
+            <h1 id="welcomeMessage">Welcome 👋</h1>
             <p>Track all your civic issues with AI-powered assistance</p>
           </div>
           <button id="newComplaintBtnTop" class="btn btn-primary" onclick="switchTab('new-complaint')">➕ New Complaint</button>
@@ -106,7 +108,7 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Category <span class="required">*</span></label>
-              <select id="category" class="form-select"> 
+              <select id="category" class="form-select" onchange="handleCategoryChange()"> 
                 <option value="">Select Category</option>
                 <option value="Road Damage">Road Damage</option>
                 <option value="Water Supply">Water Supply</option>
@@ -114,7 +116,19 @@
                 <option value="Garbage Disposal">Garbage Disposal</option>
                 <option value="Noise Pollution">Noise Pollution</option>
                 <option value="Drainage">Drainage</option>
+                <option value="Other">Other</option>
               </select>
+              <div id="subCategoryContainer" class="form-group" style="display:none; margin-top:12px;">
+                <label class="form-label">Problem Type <span class="required">*</span></label>
+                <select id="subCategory" class="form-select">
+                  <option value="">Select Problem Type</option>
+                </select>
+                <div class="ai-suggestion" style="margin-top:8px;">Select the specific type of problem you're experiencing</div>
+              </div>
+              <div id="otherCategoryInput" class="form-group" style="display:none; margin-top:12px;">
+                <label class="form-label">Please specify your issue <span class="required">*</span></label>
+                <input id="otherCategoryText" type="text" class="form-input" placeholder="Enter your custom category/issue">
+              </div>
               <div class="ai-suggestion">🤖 AI Tip: Select closest category - we'll auto-refine based on description</div>
             </div>
             <div class="form-group">
@@ -131,13 +145,28 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Location <span class="required">*</span></label>
+              <label class="form-label">Location of Issue <span class="required">*</span></label>
               <input id="location" type="text" class="form-input" placeholder="Enter street/area..."> 
-              <div class="ai-suggestion">📍 Detected: Sector 5, Market Area</div>
+              <div class="ai-suggestion">📍 Enter the specific location where the issue occurred</div>
             </div>
             <div class="form-group">
               <label class="form-label">Affected People <span class="required">*</span></label>
               <input id="affected" type="number" class="form-input" value="1" min="1">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="width:100%;">
+              <label class="form-label">Geolocation (Optional)</label>
+              <div style="display:flex; gap:8px; align-items:flex-start;">
+                <button type="button" id="getLocationBtn" class="btn btn-secondary" style="white-space:nowrap; flex-shrink:0;" onclick="getUserLocation()">
+                  📍 Get My Location
+                </button>
+                <div style="flex:1;">
+                  <input id="geolocation" type="text" class="form-input" placeholder="Latitude, Longitude will appear here" readonly style="background:var(--bg-dark); cursor:not-allowed;">
+                  <div id="locationStatus" class="ai-suggestion" style="display:none; margin-top:4px;"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -151,8 +180,27 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Description <span class="required">*</span></label>
-              <textarea id="description" class="form-textarea" placeholder="Describe issue in detail..."></textarea>
+              <textarea id="description" class="form-textarea" placeholder="Describe issue in detail..." oninput="suggestCategoryFromDescription()"></textarea>
+              <div class="ai-suggestion" id="categorySuggestion" style="display:none;">
+                🤖 AI Suggestion: <span id="suggestedCategoryText"></span>
+                <button type="button" class="btn-link" onclick="applySuggestedCategory()" style="margin-left:8px; color:var(--primary-light); text-decoration:underline; cursor:pointer;">Apply</button>
+              </div>
               <div class="ai-suggestion">📝 More details = faster resolution</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="width:100%;">
+              <label class="form-label">Upload Images & Videos</label>
+              <div class="file-upload-container">
+                <input type="file" id="mediaUpload" multiple accept="image/*,video/*" style="display:none;" onchange="handleMediaUpload(event)">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('mediaUpload').click()" style="width:100%;">
+                  📸📹 Choose Images/Videos
+                </button>
+                <button type="button" id="clearMediaBtn" class="btn btn-secondary" onclick="clearAllMediaUploads()" style="width:100%; margin-top:8px; display:none;">🗑️ Clear All Uploads</button>
+                <div id="mediaPreview" class="media-preview-grid" style="display:none; margin-top:16px;"></div>
+                <div class="ai-suggestion" style="margin-top:8px;">You can upload multiple images and videos to help describe your issue</div>
+              </div>
             </div>
           </div>
 
@@ -163,7 +211,7 @@
         </div>
 
         <div style="margin-top:40px;">
-          <h2 style="font-size:18px; margin-bottom:24px;">Why Choose CitiFix?</h2>
+          <h2 style="font-size:18px; margin-bottom:24px;">Why Choose Smart complaint app?</h2>
           <div class="feature-list">
             <div class="feature-card"><div class="feature-icon">🚀</div><div class="feature-name">Lightning Fast</div><div class="feature-desc">AI prioritization in seconds</div></div>
             <div class="feature-card"><div class="feature-icon">🌍</div><div class="feature-name">Multilingual</div><div class="feature-desc">Any language, auto-translated</div></div>
@@ -190,30 +238,130 @@
       </div>
 
       <div id="analytics" class="tab-content" style="display:none;" data-tab-name="analytics">
-        <div class="header"><h1>Analytics Dashboard</h1></div>
-        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
-          <p>📊 Analytics coming soon</p>
+        <div class="header">
+          <div class="header-title">
+            <h1>📈 Analytics Dashboard</h1>
+            <p>Insights and trends for your complaints</p>
+          </div>
+        </div>
+        <div id="analyticsContent" class="complaints-section" style="text-align:center; padding:60px 20px;">
+          <p>Loading analytics...</p>
         </div>
       </div>
 
       <div id="ai-insights" class="tab-content" style="display:none;" data-tab-name="ai-insights">
-        <div class="header"><h1>AI Insights</h1></div>
-        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
-          <p>🤖 AI recommendations coming soon</p>
+        <div class="header">
+          <div class="header-title">
+            <h1>🤖 AI Assistant</h1>
+            <p>Get instant help with your complaints and civic issues</p>
+          </div>
+          <button id="clearChatBtn" class="btn btn-secondary" onclick="clearChatHistory()" style="display:none;">
+            🗑️ Clear Chat
+          </button>
+        </div>
+
+        <div id="chatbotContainer" class="chatbot-container">
+          <!-- Suggested Questions Section -->
+          <div id="suggestedQuestions" class="suggested-questions">
+            <div class="suggested-questions-title">💡 Suggested Questions</div>
+            <div class="suggested-questions-grid">
+              <button class="suggested-question-btn" onclick="sendSuggestedMessage('How do I file a complaint?')">
+                📋 How do I file a complaint?
+              </button>
+              <button class="suggested-question-btn" onclick="sendSuggestedMessage('What is the status of my complaints?')">
+                📊 What is the status of my complaints?
+              </button>
+              <button class="suggested-question-btn" onclick="sendSuggestedMessage('How long does it take to resolve a complaint?')">
+                ⏱️ How long does resolution take?
+              </button>
+              <button class="suggested-question-btn" onclick="sendSuggestedMessage('What categories of complaints can I report?')">
+                📂 What categories are available?
+              </button>
+              <button class="suggested-question-btn" onclick="sendSuggestedMessage('Help me understand priority levels')">
+                🎯 Explain priority levels
+              </button>
+              <button class="suggested-question-btn" onclick="sendSuggestedMessage('How can I track my complaint?')">
+                🔍 How do I track my complaint?
+              </button>
+            </div>
+          </div>
+
+          <!-- Chat Messages Area -->
+          <div id="chatMessages" class="chat-messages">
+            <div class="chat-welcome-message">
+              <div class="chat-welcome-icon">🤖</div>
+              <div class="chat-welcome-text">
+                <h3>Hello! I'm your AI Assistant</h3>
+                <p>I can help you with:</p>
+                <ul>
+                  <li>Filing and managing complaints</li>
+                  <li>Understanding the complaint process</li>
+                  <li>Tracking your complaint status</li>
+                  <li>Answering questions about civic issues</li>
+                  <li>Suggesting categories and priorities</li>
+                </ul>
+                <p style="margin-top:16px; color:var(--text-secondary); font-size:13px;">Click on a suggested question above or type your message below to get started!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div id="typingIndicator" class="typing-indicator" style="display:none;">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="typing-text">AI is typing...</span>
+          </div>
+
+          <!-- Chat Input Area -->
+          <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+              <button id="micBtn" class="chat-mic-btn" onclick="toggleVoiceRecording()" title="Voice Input">
+                <span id="micIcon">🎤</span>
+              </button>
+              <textarea 
+                id="chatInput" 
+                class="chat-input" 
+                placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
+                rows="1"
+                onkeydown="handleChatInputKeydown(event)"
+                oninput="autoResizeChatInput(this)"
+              ></textarea>
+              <button id="sendChatBtn" class="chat-send-btn" onclick="sendChatMessage()">
+                <span class="send-icon">📤</span>
+              </button>
+            </div>
+            <div class="chat-input-footer">
+              <span id="recordingStatus" style="color:var(--danger); font-size:12px; display:none;">🔴 Recording... Click again to stop</span>
+              <span style="color:var(--text-secondary); font-size:12px;">💡 Tip: Ask me anything about complaints, categories, or civic issues</span>
+            </div>
+          </div>
         </div>
       </div>
 
       <div id="help" class="tab-content" style="display:none;" data-tab-name="help">
-        <div class="header"><h1>Help Center</h1></div>
-        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
-          <p>❓ FAQ and support articles</p>
+        <div class="header">
+          <div class="header-title">
+            <h1>❓ Help Center</h1>
+            <p>Find answers to common questions and get support</p>
+          </div>
+        </div>
+        <div id="helpContent">
+          <!-- Content will be loaded here -->
         </div>
       </div>
 
       <div id="settings" class="tab-content" style="display:none;" data-tab-name="settings">
-        <div class="header"><h1>Settings</h1></div>
-        <div class="complaints-section" style="text-align:center; padding:60px 20px;">
-          <p>⚙️ Account settings</p>
+        <div class="header">
+          <div class="header-title">
+            <h1>⚙ Settings</h1>
+            <p>Manage your account and preferences</p>
+          </div>
+        </div>
+        <div id="settingsContent">
+          <!-- Content will be loaded here -->
         </div>
       </div>
     </main>
@@ -222,6 +370,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <script src="firebase-init.js"></script>
   <script src="dashboard.js"></script>
 </body>

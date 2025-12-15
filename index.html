@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>CitiFix - Auth</title>
+    <title>Smart Public Complaint - Auth</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +12,7 @@
         <div class="auth-box">
             <div class="auth-header">
                 <div class="auth-logo">⚡</div>
-                <h1>CitiFix</h1>
+                <h1>Smart Public Complaint</h1>
                 <p>AI-Powered Civic Issue Resolution</p>
             </div>
 
@@ -40,26 +41,6 @@
                 </div>
 
                 <button class="btn btn-primary" onclick="handleLogin()" style="margin-top: 8px;">🔓 Login</button>
-
-                <div class="form-group" style="margin-top: 12px;">
-                    <label class="checkbox-group">
-                        <input type="checkbox" id="useOtp" onchange="toggleOtpLogin()">
-                        <span>Login with OTP instead?</span>
-                    </label>
-                </div>
-
-                <div id="otpLoginSection" class="otp-section" aria-hidden="true">
-                    <p style="font-size: 12px; margin-bottom: 8px;">📱 Enter OTP sent to your phone</p>
-                    <div class="otp-inputs" id="otpInputs">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this)" autocomplete="off">
-                    </div>
-                    <button class="btn btn-primary" onclick="verifyOtp()">✓ Verify OTP</button>
-                </div>
 
                 <div class="auth-footer">
                     <a onclick="switchAuthTab('register')">Don't have account? Register</a><br><br>
